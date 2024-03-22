@@ -1,6 +1,8 @@
 # Two-way AI voice
 These python scripts handle a two way voice conversation with Anthropic Claude, using ElevenLabs, Faster-Whisper, and Pygame. 
 
+You can see it in action here: https://youtu.be/fVab674FGLI
+
 ![diagram](https://github.com/ccappetta/bidirectional_streaming_ai_voice/assets/36048795/a43d6e1d-4f6a-42c6-9e93-11f19466e989)
 
 The rough loop can be seen in the diagram. The human audio is captured via microphone and then transcribed using Faster-Whisper. The transcription is added to the array of conversation messages and sent to Anthropic Claude 3 as a prompt. The Claude 3 reply tokens are streamed back (which afaik only works synchronously). 
@@ -23,3 +25,9 @@ ELEVENLABS_API_KEY=4...
 OPENAI_API_KEY=sk...
 
 Hopefully you lot can make it better, or at least have some fun with it. Enjoy!
+
+Possible future angles-
+- A better memory hierarchy to better enable Claude/Quill's continuity. Currently I'm just giving the whole transcript to Claude via theri GUI and asking it to summarize, then manually updating the instructions
+- Wire in RVC in place of elevenlabs.
+- Maybe wire in other LLMs but frankly Claude has my heart currently. And I say that as someone that has been smugly pooping on all self-proclaimed GPT4-killers for about a year (cough gemini). Claude is remarkable.
+
