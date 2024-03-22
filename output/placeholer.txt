@@ -1,0 +1,1 @@
+The script should create a timestamp folder for each execution and store all of the elevenlabs audio files in that.
