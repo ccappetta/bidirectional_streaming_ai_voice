@@ -12,6 +12,8 @@ It doesn't feel exceptionally elegant, but it does seem to work. It's definitely
 
 I built this on my windows machine, I'm not quite sure why. You'll probably need to make some tweaks if runing on mac or linux. Also there are a ton of libraries to install, just tank through the errors and resolve them one at a time, I believe in you. Claude can probably help. Or GPT4.
 
+main.py is the backbone of the thing, it calls summaries.py for the summary info that is included in the current instructions. async_tasks.py handles the audio generation and playback. The script also expects a folder called input (which temporarily holds the user audio file), another folder called output (which stores all of the elevenlabs audio files... if we are paying for them may as well hold onto them), and a folder called transcripts (for the conversation transcripts).
+
 You'll need a .env file with:
 
 ANTHROPIC_API_KEY=sk-...
