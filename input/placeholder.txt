@@ -1,0 +1,1 @@
+This input folder should temporarily hold each human audio file for faster-whisper to transcribe
