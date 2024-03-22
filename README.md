@@ -10,11 +10,14 @@ Spacebar triggers the transition between human and AI turns.
 
 It doesn't feel exceptionally elegant, but it does seem to work. It's definitely quicker than the designs I was finding that wait for the full LLM reply to be generated before invoking audio generation (and then edit out the latency... I see you youtube :). 
 
-I built this on my windows machine, I'm not quite sure why. You'll probably need to make some tweaks if runing on mac or linux. Also there are a ton of libraries to install, just tank through the errors and resolve them one at a time, I believe in you.
+I built this on my windows machine, I'm not quite sure why. You'll probably need to make some tweaks if runing on mac or linux. Also there are a ton of libraries to install, just tank through the errors and resolve them one at a time, I believe in you. Claude can probably help. Or GPT4.
 
 You'll need a .env file with:
+
 ANTHROPIC_API_KEY=sk-...
+
 ELEVENLABS_API_KEY=4...
+
 OPENAI_API_KEY=sk...
 
 Hopefully you lot can make it better, or at least have some fun with it. Enjoy!
