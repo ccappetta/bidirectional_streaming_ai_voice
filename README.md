@@ -1,5 +1,5 @@
 # Two-way AI voice
-These python scripts handle a two way voice conversation with Anthropic Claude, using ElevenLabs, Faster-Whisper, and Pygame. 
+These python scripts run a two-way voice conversation with Anthropic Claude, using ElevenLabs for TTS, Faster-Whisper for speech to text, and Pygame for audio playback. 
 
 You can see it in action here: https://youtu.be/fVab674FGLI
 
@@ -27,7 +27,8 @@ OPENAI_API_KEY=sk...
 Hopefully you lot can make it better, or at least have some fun with it. Enjoy!
 
 Possible future angles-
-- A better memory hierarchy to better enable Claude/Quill's continuity. Currently I'm just giving the whole transcript to Claude via theri GUI and asking it to summarize, then manually updating the instructions
-- Wire in RVC in place of elevenlabs.
-- Maybe wire in other LLMs but frankly Claude has my heart currently. And I say that as someone that has been smugly pooping on all self-proclaimed GPT4-killers for about a year (cough gemini). Claude is remarkable.
+- A better memory hierarchy to improve Claude/Quill's continuity. Currently I'm just giving the whole transcript to (another) Claude via their GUI and asking it to summarize, then I'm manually updating the summary.py file and the instructions variable.
+- Wire in RVC in place of elevenlabs. It's an intriguing open source voice library.
+- Maybe at some point I'd think about wiring in other LLMs but frankly Claude has my heart currently. And I say that as someone that has been smugly pooping on all self-proclaimed GPT4-killers for about a year (cough gemini). Claude is remarkable.
+- The elevenlabs custom voice models are pretty stunning. A colleague and I have been thinking about trying a format where each of us interview Claudes with each other's cloned voice. That would furrow some brows I bet. Perhaps the 'latent noise' podcast will become a thing.
 
