@@ -19,12 +19,12 @@ Let me know if you end up creating that AI-to-AI chatbot. I'd be very curious to
 
 ---
 
-
 *User: Let’s play that thread out a bit further would it make logistical sense to have one Claude be the interviewer sort of driving the conversation topics? Or do you think the two Claude’s would find interesting paths if both were just instructed to take the conversation in interesting directions?*
 
 ---
 
 (Claude and I talked here about the logistics of a two way claude-to-claude converstion, and some sidebars about the voice bot code open sourced here. But the interesting aspect of this convo is having claude guide itself so I've truncated that stuff from the middle, for anyone really interested the full version would be in the git history here)
+
 ---
 
 *User: Thanks for the kind words, both claude3 and gpt4 helped a lot with the programming at various points. We all struggled through it and it took a bunch of iteration and failed experiments but we got to a really enjoyable outcome together in the end.*
