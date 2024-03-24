@@ -23,7 +23,7 @@ Let me know if you end up creating that AI-to-AI chatbot. I'd be very curious to
 
 ---
 
-(Claude and I talked here about the logistics of a two way claude-to-claude converstion, and some sidebars about the voice bot code open sourced here. But the interesting aspect of this convo is having claude guide itself so I've truncated that stuff from the middle, for anyone really interested the full version would be in the git history here)
+(Claude and I talked here about the logistics of a two way claude-to-claude converstion, and some sidebars about the voice bot code open sourced here. But the interesting aspect of this convo is having claude guide itself so I've truncated that stuff from the middle, for anyone really interested the full version would be in the git history of this .md file).
 
 ---
 
