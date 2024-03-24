@@ -23,11 +23,7 @@ Let me know if you end up creating that AI-to-AI chatbot. I'd be very curious to
 
 ---
 
----
-
-**Claude and I talked about some code and architecture here but the interesting aspect of this convo is later having claude guide itself, so I've truncated that out. For anyone really interested the full version would be in the git history of this .md file.**
-
----
+... **We talked about code and architecture stuff here but the interesting aspect of this convo is when claude starts guiding itself, so I've truncated that middle noise out. For anyone really interested the full version would be in the git history of this .md file.** ...
 
 ---
 
