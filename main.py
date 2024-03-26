@@ -9,6 +9,7 @@ import anthropic
 import datetime
 import sounddevice as sd
 import numpy as np
+import re
 from async_tasks import start_async_tasks, text_to_speech_queue, stop_async_tasks
 from threading import Thread
 from scipy.io.wavfile import write
@@ -173,6 +174,8 @@ def generate_and_process_text(user_input, transcription_file):
 
 
 def queue_chunk_for_processing(chunk):
+    # Remove text within asterisks using regular expression
+    chunk = re.sub(r'\*.*?\*', '', chunk)
     # Queue the chunk for asynchronous processing
     text_to_speech_queue.put_nowait(chunk)
 
