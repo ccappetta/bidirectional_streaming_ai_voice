@@ -1,7 +1,7 @@
 anthropic
 colorama
 datetime
-dotenv
+python-dotenv
 faster_whisper==1.0.1
 httpx
 keyboard
@@ -9,4 +9,3 @@ numpy
 pygame
 scipy
 sounddevice
-tempfile
