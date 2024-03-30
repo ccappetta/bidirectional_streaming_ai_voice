@@ -9,3 +9,4 @@ numpy
 pygame
 scipy
 sounddevice
+GPUtil

@@ -3,6 +3,7 @@ from summaries import session_one_summary, session_two_summary, session_two_part
 import os
 import asyncio
 import keyboard
+import GPUtil
 import time
 import tempfile
 import anthropic
@@ -37,7 +38,8 @@ pygame.init()
 conversation_history = []
 shutdown_event = asyncio.Event()
 model_size = "small"
-compute_type = "float16"
+supports_gpu = len(GPUtil.getAvailable()) > 0
+compute_type = "float16" if supports_gpu else "float32"
 recording_finished = False
 is_recording = False
 
@@ -107,7 +109,7 @@ def transcribe_audio_to_text(audio_data, sample_rate):
         write(temp_file_path, sample_rate, audio_data)
         # print(f"Audio written to temporary file: {temp_file_path}")
         segments, _ = WhisperModel(
-            model_size, device="cuda", compute_type=compute_type).transcribe(temp_file_path)
+            model_size, device=f"{'cuda' if supports_gpu else 'cpu'}", compute_type=compute_type).transcribe(temp_file_path)
         transcript = " ".join(segment.text for segment in segments)
         print(Fore.GREEN + "User:", transcript)
         return transcript
