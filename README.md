@@ -24,11 +24,45 @@ ELEVENLABS_API_KEY=4...
 
 OPENAI_API_KEY=sk...
 
-Hopefully you lot can make it better, or at least have some fun with it. Enjoy!
 
-Possible future angles-
+
+
+
+## Some thoughts on performance:
+
+The crux latency consideration is between the time the user hits spacebar and the time the LLM audio playback begins; there are quite a few things happening in that sequence. I was poking around with some rough logging and thought the ballpark times of each mechanism breakpoint might be useful to someone.
+- Spacebar press
+- User audio file is generated and faster-whisper transcribes it to text (~4.5 seconds)
+- Transcribed user text is sent to anthropic and the first LLm response token is streamed back (~3.5 seconds)
+- Enough LLM tokens are streamed back to generate a ~150 character chunk and send that text off to Elevenlabs (~1.25 seconds)
+- Elevenlabs generates and returns the audio file (~1.25 seconds)
+- Pygame playback begins (0.1 second)
+
+So we can see that the transcription of the user's audio is likely the best area for performanc gains. Perhaps with some element of audio chunking and parallel transcription so that the bulk of the audio is transcribed by the time the 'turn end' spacebar is pressed. Or perhaps there is another better transcription approach than faster-whisper. I think we can tolerate some level of inaccuracy because the LLMs these days seem pretty able to handle typos and mistypes... which also extends to them handling mediocre transcriptions
+There likely isn't much gain to be found in the outside anthropic and elevenlabs APIs. Elevenlabs does have a websocket streaming design that I was initially trying but moved away from. I needed the anthropic token streaming to be synchronous so thats why audio generation and playback had to become async... so I'm not recalling if thats why I made that decision or not. If someone explores that I would be interested in hearing. At the time I was working with MVP and VLC libraries with mixed success, so perhaps the websocket approach would work better with the pygame audio playback I eventually settled on.
+There may also be some gains in the chunking logic, if a smaller first chunk is sent out to elevenlabs that would shave off some of that ~1.25 seconds. Though it does seem like that 150 characters and punctuation breakpoint logic does seem to align to the first sentence generally, and having elevenlabs generate by the sentence seems intuitively to me like a way to get better audio than sending partial sentences to generate independently. I'd be interested in what others find if they explore this.
+
+
+
+## Mac users check out this good comment from  @martoast:
+Mac users change this line so that you use the CPU for speech to text.
+```
+compute_type = "float32"
+
+segments, _ = WhisperModel(
+model_size, device="cpu", compute_type=compute_type).transcribe(temp_file_path)
+```
+
+
+
+
+## Possible future angles-
 - A better memory hierarchy to improve Claude/Quill's continuity. Currently I'm just giving the whole transcript to (another) Claude via their GUI and asking it to summarize, then I'm manually updating the summary.py file and the instructions variable.
 - Wire in RVC in place of elevenlabs. It's an intriguing open source voice library.
 - Maybe at some point I'd think about wiring in other LLMs but frankly Claude has my heart currently. And I say that as someone that has been smugly pooping on all self-proclaimed GPT4-killers for about a year (cough gemini). Claude is remarkable.
 - The elevenlabs custom voice models are pretty stunning. A colleague and I have been thinking about trying a format where each of us interview Claudes with each other's cloned voice. That would furrow some brows I bet. Perhaps the 'latent noise' podcast will become a thing.
+
+Hopefully you lot can make it better, or at least have some fun with it. Enjoy!
+
+Thanks for reading.
 
