@@ -17,8 +17,7 @@ load_dotenv()
 init(autoreset=True)
 
 ELEVENLABS_API_KEY = os.getenv('ELEVENLABS_API_KEY')
-# VOICE_ID = '2zx61Bg0KUjMrtgwGujs'
-VOICE_ID = "ASxC0l6pk1JESb4O3G4P"
+VOICE_ID = os.getenv('ELEVENLABS_VOICE_ID', '2zx61Bg0KUjMrtgwGujs')
 MODEL_ID = 'eleven_turbo_v2'
 
 file_increment = 0
