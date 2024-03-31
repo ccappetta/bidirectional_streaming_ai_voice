@@ -212,8 +212,7 @@ def main():
         file.write(f"Transcription started at {timestamp}\n\n")
 
     try:
-
-        keyboard.on_press(on_space_press)
+        # keyboard.on_press(on_space_press)
         while True:
             if current_state != previous_state:
                 # print(f"Current state: {current_state}")

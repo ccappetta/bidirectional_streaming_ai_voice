@@ -83,6 +83,11 @@ async def text_to_speech_consumer(text_to_speech_queue):
         await process_text_to_speech(text)
         text_to_speech_queue.task_done()
 
+async def check_for_kbd_input():
+    while True:
+        inp = input("Press a key:")
+        print (f"DEBUG kbd input: -->{inp}<---")
+        await asyncio.sleep(0.1)
 
 async def start_async_tasks(text_to_speech_queue):
     """Starts asynchronous tasks without directly calling loop.run_forever()."""
@@ -95,7 +100,8 @@ async def start_async_tasks(text_to_speech_queue):
     consumer_task = loop.create_task(
         text_to_speech_consumer(text_to_speech_queue))
     play_task = loop.create_task(play_audio())
-    return consumer_task, play_task
+    keyboard_task = loop.create_task(check_for_kbd_input())
+    return consumer_task, play_task, keyboard_task
 
 
 async def stop_async_tasks():
