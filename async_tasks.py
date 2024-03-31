@@ -1,6 +1,8 @@
 # fmt: off
 import os
+import sys
 import platform
+import select
 import asyncio
 from httpx import AsyncClient, Timeout
 from collections import deque
@@ -15,7 +17,8 @@ load_dotenv()
 init(autoreset=True)
 
 ELEVENLABS_API_KEY = os.getenv('ELEVENLABS_API_KEY')
-VOICE_ID = '2zx61Bg0KUjMrtgwGujs'
+# VOICE_ID = '2zx61Bg0KUjMrtgwGujs'
+VOICE_ID = "ASxC0l6pk1JESb4O3G4P"
 MODEL_ID = 'eleven_turbo_v2'
 
 file_increment = 0
@@ -72,6 +75,7 @@ async def process_text_to_speech(text):
 
 async def play_audio():
     while True:
+        # print ("DEBUG audio_queue:", audio_queue)
         if not pygame.mixer.music.get_busy() and audio_queue:
             pygame.mixer.music.load(audio_queue.popleft())
             pygame.mixer.music.play()
@@ -98,10 +102,11 @@ def set_keyboard_handler(kbhan):
 
 async def check_for_kbd_input():
     while True:
-        inp = input()
-        # print (f"DEBUG kbd input: -->{inp}<---")
-        keyboard_handler(space_event)
-        await asyncio.sleep(0.1)
+        read = select.select([sys.stdin,], [], [], 0)[0]   # don't block forever, allow graceful exit
+        if len(read):
+            inp = input()
+            keyboard_handler(space_event)
+        await asyncio.sleep(1.0)
 
 
 async def start_async_tasks(text_to_speech_queue):
