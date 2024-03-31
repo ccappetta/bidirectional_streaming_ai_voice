@@ -1,5 +1,6 @@
 # fmt: off
 import os
+import platform
 import asyncio
 from httpx import AsyncClient, Timeout
 from collections import deque
@@ -114,7 +115,8 @@ async def start_async_tasks(text_to_speech_queue):
     consumer_task = loop.create_task(
         text_to_speech_consumer(text_to_speech_queue))
     play_task = loop.create_task(play_audio())
-    keyboard_task = loop.create_task(check_for_kbd_input())
+    if platform != "win32":
+        keyboard_task = loop.create_task(check_for_kbd_input())
     return consumer_task, play_task, keyboard_task
 
 

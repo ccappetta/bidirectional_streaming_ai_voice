@@ -3,6 +3,7 @@ from summaries import session_one_summary, session_two_summary, session_two_part
 import os
 import asyncio
 import keyboard
+import platform
 import GPUtil
 import time
 import tempfile
@@ -42,7 +43,7 @@ supports_gpu = len(GPUtil.getAvailable()) > 0
 compute_type = "float16" if supports_gpu else "float32"
 recording_finished = False
 is_recording = False
-
+command_key = "the space bar" if platform == 'win32' else "<enter>"
 
 class States:
     WAITING_FOR_USER = 1
@@ -57,7 +58,7 @@ current_state = States.WAITING_FOR_USER
 system_message = f'We will continue our conversation. Here is a summary of the first part of our discussion: {session_one_summary} and the second part of our discussion {session_two_summary}...{session_two_part_two_summary}. Please be brief in your replies and focus on the most interesting concepts.'
 
 print("\nClaude's instructions: " + system_message + Fore.YELLOW +
-      "\n\nPress spacebar to capture your audio and begin the conversation." + Style.RESET_ALL)
+      f"\n\nPress {command_key} to capture your audio and begin the conversation." + Style.RESET_ALL)
 
 
 def record_audio():
@@ -93,7 +94,7 @@ def on_space_press(event):
         if current_state == States.WAITING_FOR_USER:
             is_recording = True
             current_state = States.RECORDING_USER_INPUT
-            print(Fore.YELLOW + "Recording started. Press the space bar to stop.")
+            print(Fore.YELLOW + f"Recording started. Press {command_key} to stop.")
         elif current_state == States.RECORDING_USER_INPUT and is_recording:
             is_recording = False  # This will trigger the recording to stop
             print("Recording stopped. Processing input...")
@@ -212,8 +213,10 @@ def main():
         file.write(f"Transcription started at {timestamp}\n\n")
 
     try:
-        # keyboard.on_press(on_space_press)
-        set_keyboard_handler(on_space_press)
+        if platform == "win32":
+            keyboard.on_press(on_space_press)
+        else:
+            set_keyboard_handler(on_space_press)
         while True:
             if current_state != previous_state:
                 # print(f"Current state: {current_state}")
