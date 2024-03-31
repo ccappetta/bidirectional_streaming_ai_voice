@@ -11,7 +11,7 @@ import datetime
 import sounddevice as sd
 import numpy as np
 import re
-from async_tasks import start_async_tasks, text_to_speech_queue, stop_async_tasks
+from async_tasks import start_async_tasks, text_to_speech_queue, stop_async_tasks, set_keyboard_handler
 from threading import Thread
 from scipy.io.wavfile import write
 from faster_whisper import WhisperModel
@@ -213,6 +213,7 @@ def main():
 
     try:
         # keyboard.on_press(on_space_press)
+        set_keyboard_handler(on_space_press)
         while True:
             if current_state != previous_state:
                 # print(f"Current state: {current_state}")

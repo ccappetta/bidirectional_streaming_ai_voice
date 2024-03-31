@@ -83,11 +83,25 @@ async def text_to_speech_consumer(text_to_speech_queue):
         await process_text_to_speech(text)
         text_to_speech_queue.task_done()
 
+
+class fake_space_event:
+    name = "space"
+
+space_event = fake_space_event()
+
+
+def set_keyboard_handler(kbhan):
+    global keyboard_handler
+    keyboard_handler = kbhan
+
+
 async def check_for_kbd_input():
     while True:
-        inp = input("Press a key:")
-        print (f"DEBUG kbd input: -->{inp}<---")
+        inp = input()
+        # print (f"DEBUG kbd input: -->{inp}<---")
+        keyboard_handler(space_event)
         await asyncio.sleep(0.1)
+
 
 async def start_async_tasks(text_to_speech_queue):
     """Starts asynchronous tasks without directly calling loop.run_forever()."""
