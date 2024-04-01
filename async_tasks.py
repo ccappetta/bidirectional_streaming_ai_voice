@@ -121,6 +121,8 @@ async def start_async_tasks(text_to_speech_queue):
     play_task = loop.create_task(play_audio())
     if platform != "win32":
         keyboard_task = loop.create_task(check_for_kbd_input())
+    else:
+        keyboard_task = None
     return consumer_task, play_task, keyboard_task
 
 
