@@ -105,7 +105,7 @@ async def check_for_kbd_input():
         if len(read):
             inp = input()
             keyboard_handler(space_event)
-        await asyncio.sleep(1.0)
+        await asyncio.sleep(0.1)
 
 
 async def start_async_tasks(text_to_speech_queue):
