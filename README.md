@@ -4,9 +4,11 @@ These python scripts run a two-way voice conversation with Anthropic Claude, usi
 ## 17 April Update:
 
 I've started splitting different variations out into branches. These aren't intended to be e.g. dev branches that will merge back into main, but are just a convenient way to manage different functionality, requirements, and variations.
-- Main is the version I've been using in the youtube conversations, with the ability to re-engage a conversation from a transcript file. It works on my windows 10 with NVIDIA CUDA for the processing
-- linux_cpu_enter_keypress_support has some nice community contributions to handle linux OS by using an enter keypress in lieu of a spacebar press, and CPU transcription
-- assembly_api_transcription is a variation of main that uses the assembly.ai API in place of faster whisper, it may be easier to run on PC's with less GPU and hosepower since it's shipping that compute up to the cloud. Additionally it may reduce the setup effort for all of the NVIDIA CUDA stuff that faster-whisper uses when running the transcription locall. A potential downside is assembly.ai is another vendor API in the mix.
+- `Main` is the version I've been using in the youtube conversations, with the ability to re-engage a conversation from a transcript file. It works on my windows 10 with NVIDIA CUDA for the processing.
+- `linux_cpu_enter_keypress_support` has some nice community contributions to handle linux OS by using an enter keypress in lieu of a spacebar press, and CPU transcription.
+- `assembly_api_transcription` is a variation of main that uses the assembly.ai API in place of faster whisper, it may be easier to run on PC's with less GPU and hosepower since it's shipping that compute up to the cloud. Additionally it may reduce the setup effort for all of the NVIDIA CUDA stuff that faster-whisper uses when running the transcription locally. A potential downside, dpending on your weltbild and circumstance is that assembly.ai is another vendor API in the mix.
+
+Now that I've stashed away the most current versions I'm keen to start experimenting with some other variations around speech to text streaming, audio generation, and perhaps alternate open and closed LLMs.
 
 ## Overview
 You can see the design in action here: https://youtu.be/fVab674FGLI
