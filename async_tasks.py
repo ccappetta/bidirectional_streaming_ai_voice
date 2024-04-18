@@ -1,8 +1,5 @@
 # fmt: off
 import os
-import sys
-import platform
-import select
 import asyncio
 from httpx import AsyncClient, Timeout
 from collections import deque
@@ -17,8 +14,9 @@ load_dotenv()
 init(autoreset=True)
 
 ELEVENLABS_API_KEY = os.getenv('ELEVENLABS_API_KEY')
-VOICE_ID = os.getenv('ELEVENLABS_VOICE_ID', '2zx61Bg0KUjMrtgwGujs')
+VOICE_ID = 'ZucSKjgS1P6bwfYYa3I4'
 MODEL_ID = 'eleven_turbo_v2'
+# MODEL_ID = 'eleven_multilingual_v2'
 
 file_increment = 0
 audio_queue = deque()
@@ -52,7 +50,7 @@ async def process_text_to_speech(text):
     data = {
         "model_id": MODEL_ID,
         "text": text,
-        "voice_settings": {"similarity_boost": 0.8, "stability": 0.35}
+        "voice_settings": {"similarity_boost": 0.75, "stability": 0.5}
     }
 
     timeout = Timeout(30.0, connect=60.0)
@@ -74,7 +72,6 @@ async def process_text_to_speech(text):
 
 async def play_audio():
     while True:
-        # print ("DEBUG audio_queue:", audio_queue)
         if not pygame.mixer.music.get_busy() and audio_queue:
             pygame.mixer.music.load(audio_queue.popleft())
             pygame.mixer.music.play()
@@ -88,26 +85,6 @@ async def text_to_speech_consumer(text_to_speech_queue):
         text_to_speech_queue.task_done()
 
 
-class fake_space_event:
-    name = "space"
-
-space_event = fake_space_event()
-
-
-def set_keyboard_handler(kbhan):
-    global keyboard_handler
-    keyboard_handler = kbhan
-
-
-async def check_for_kbd_input():
-    while True:
-        read = select.select([sys.stdin,], [], [], 0)[0]   # don't block forever, allow graceful exit
-        if len(read):
-            inp = input()
-            keyboard_handler(space_event)
-        await asyncio.sleep(0.1)
-
-
 async def start_async_tasks(text_to_speech_queue):
     """Starts asynchronous tasks without directly calling loop.run_forever()."""
     try:
@@ -119,11 +96,7 @@ async def start_async_tasks(text_to_speech_queue):
     consumer_task = loop.create_task(
         text_to_speech_consumer(text_to_speech_queue))
     play_task = loop.create_task(play_audio())
-    if platform != "win32":
-        keyboard_task = loop.create_task(check_for_kbd_input())
-    else:
-        keyboard_task = None
-    return consumer_task, play_task, keyboard_task
+    return consumer_task, play_task
 
 
 async def stop_async_tasks():
