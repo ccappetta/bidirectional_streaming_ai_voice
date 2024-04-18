@@ -8,7 +8,7 @@ I've started splitting different variations out into branches. These aren't inte
 - `linux_cpu_enter_keypress_support` has some nice community contributions to handle linux OS by using an enter keypress in lieu of a spacebar press, and CPU transcription.
 - `assembly_api_transcription` is a variation of main that uses the assembly.ai API in place of faster whisper, it may be easier to run on PC's with less GPU and hosepower since it's shipping that compute up to the cloud. Additionally it may reduce the setup effort for all of the NVIDIA CUDA stuff that faster-whisper uses when running the transcription locally. A potential downside, dpending on your weltbild and circumstance is that assembly.ai is another vendor API in the mix.
 
-Now that I've stashed away the most current versions I'm keen to start experimenting with some other variations around speech to text streaming, audio generation, and perhaps alternate open and closed LLMs.
+Now that I've stashed away the most current versions here, I'm keen to start experimenting with some other variations around speech to text streaming, audio generation, and perhaps alternate open and closed LLMs.
 
 ## Overview
 You can see the design in action here: https://youtu.be/fVab674FGLI
