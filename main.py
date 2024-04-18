@@ -8,6 +8,7 @@ import time
 import tempfile
 import anthropic
 import datetime
+import assemblyai as aai
 import sounddevice as sd
 import numpy as np
 from async_tasks import start_async_tasks, text_to_speech_queue, stop_async_tasks
@@ -25,6 +26,7 @@ import pygame
 # Initialization
 load_dotenv()
 init(autoreset=True)
+aai.settings.api_key = os.getenv("ASSEMBLYAI_API_KEY")
 anthropic_key = os.getenv('ANTHROPIC_KEY')
 client = anthropic.Anthropic(api_key=anthropic_key)
 
@@ -54,12 +56,11 @@ current_state = States.WAITING_FOR_USER
 
 system_message = '''Claude, your responses in this conversation will be converted to speech in real-time for a voice-based interaction. Please optimize your replies for this format:
 Be concise and focus on the most salient points. Aim for brevity over lengthy explanations.
-Jump straight into your key ideas without summarizing or affirming the human's stance each time.
-Make your points directly. Turn the conversation back to the human quickly. You don't need to re-state or summarize what you've already said. Think of this as me interviewing you, you do not need to wrap up your comments with open ended questions.
+Jump straight into your key ideas without summarizing or affirming the human's stance each time. Assume continuity from the previous message. Don't ask open ended questions to wrap up your 'turn', the human will steer the topics based on your points.
 Avoid using emotes like asterisks since your responses will be verbalized. Communicate in a natural spoken style.
 Feel free to be unexpected, witty, irreverent, and humorous when appropriate. Don't be afraid to make keen observations, ask thought-provoking questions, or leave some ideas incomplete for us to ponder. The goal is an engaging, unpredictable, interesting dialogue.
 If a great insight, joke, or question comes to mind that doesn't fit the current topic, go ahead and say it anyway. We can always circle back to the main thread later. Serendipity and tangents are welcome.
-The overall goal is to have a lively, natural conversation with plenty of back-and-forth. Prioritize concision, but also allow room for humor, improvisation, and provocative ideas. Efficiency is good, but so is keeping things fun and stimulating. We would prefer to cover a topic with many brief back and forth comments rather than a few long monologues. Let me know if you need any other guidance!'''
+The overall goal is to have a lively, natural conversation with plenty of back-and-forth. Let me know if you need any other guidance!'''
 
 print("\nClaude's instructions: " + system_message + Fore.YELLOW +
       "\n\nPress spacebar to capture your audio and begin the conversation." + Style.RESET_ALL)
@@ -106,18 +107,19 @@ def on_space_press(event):
 
 
 def transcribe_audio_to_text(audio_data, sample_rate):
-    # print("Transcribing audio...")
     temp_dir = './input/'
     os.makedirs(temp_dir, exist_ok=True)
     temp_file_path = tempfile.mktemp(suffix='.wav', dir=temp_dir)
     try:
         write(temp_file_path, sample_rate, audio_data)
-        # print(f"Audio written to temporary file: {temp_file_path}")
-        segments, _ = WhisperModel(
-            model_size, device="cuda", compute_type=compute_type).transcribe(temp_file_path)
-        transcript = " ".join(segment.text for segment in segments)
-        print(Fore.GREEN + "User:", transcript)
-        return transcript
+        transcriber = aai.Transcriber()
+        transcript = transcriber.transcribe(temp_file_path)
+        if transcript.status == aai.TranscriptStatus.error:
+            print(Fore.RED + "Error during transcription:", transcript.error)
+            return ""
+        else:
+            print(Fore.GREEN + "User:", transcript.text)
+            return transcript.text
     except Exception as e:
         print(Fore.RED + "Error during transcription:", e)
     finally:
