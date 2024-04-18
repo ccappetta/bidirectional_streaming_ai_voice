@@ -1,13 +1,14 @@
 # Two-way AI voice
 These python scripts run a two-way voice conversation with Anthropic Claude, using ElevenLabs for TTS, Faster-Whisper for speech to text, and Pygame for audio playback. 
 
-17 April Update:
+## 17 April Update:
 
 I've started splitting different variations out into branches. These aren't intended to be e.g. dev branches that will merge back into main, but are just a convenient way to manage different functionality, requirements, and variations.
 - Main is the version I've been using in the youtube conversations, with the ability to re-engage a conversation from a transcript file. It works on my windows 10 with NVIDIA CUDA for the processing
 - linux_cpu_enter_keypress_support has some nice community contributions to handle linux OS by using an enter keypress in lieu of a spacebar press, and CPU transcription
 - assembly_api_transcription is a variation of main that uses the assembly.ai API in place of faster whisper, it may be easier to run on PC's with less GPU and hosepower since it's shipping that compute up to the cloud. Additionally it may reduce the setup effort for all of the NVIDIA CUDA stuff that faster-whisper uses when running the transcription locall. A potential downside is assembly.ai is another vendor API in the mix.
 
+## Overview
 You can see the design in action here: https://youtu.be/fVab674FGLI
 
 ![diagram](https://github.com/ccappetta/bidirectional_streaming_ai_voice/assets/36048795/a43d6e1d-4f6a-42c6-9e93-11f19466e989)
