@@ -1,5 +1,4 @@
 # fmt: off
-from summaries import session_one_summary, session_two_summary, session_two_part_two_summary
 import os
 import sys
 import asyncio
@@ -8,9 +7,10 @@ import time
 import tempfile
 import anthropic
 import datetime
+import assemblyai as aai
 import sounddevice as sd
 import numpy as np
-from async_tasks import start_async_tasks, text_to_speech_queue, stop_async_tasks
+from async_tasks import start_async_tasks, text_to_speech_queue
 from threading import Thread
 from scipy.io.wavfile import write
 from faster_whisper import WhisperModel
@@ -22,10 +22,13 @@ import pygame
 # fmt: on
 
 
-# Initialization
+# Credentials and API keys
 load_dotenv()
-init(autoreset=True)
+aai.settings.api_key = os.getenv("ASSEMBLYAI_API_KEY")
 anthropic_key = os.getenv('ANTHROPIC_KEY')
+
+# Initialize colorama and Anthropic client
+init(autoreset=True)
 client = anthropic.Anthropic(api_key=anthropic_key)
 
 # Initialize Pygame for audio playback
@@ -56,10 +59,10 @@ system_message = '''Claude, your responses in this conversation will be converte
 Be concise and focus on the most salient points. Aim for brevity over lengthy explanations.
 Jump straight into your key ideas without summarizing or affirming the human's stance each time.
 Make your points directly. Turn the conversation back to the human quickly. You don't need to re-state or summarize what you've already said. Think of this as me interviewing you, you do not need to wrap up your comments with open ended questions.
-Avoid using emotes like asterisks since your responses will be verbalized. Communicate in a natural spoken style.
+
 Feel free to be unexpected, witty, irreverent, and humorous when appropriate. Don't be afraid to make keen observations, ask thought-provoking questions, or leave some ideas incomplete for us to ponder. The goal is an engaging, unpredictable, interesting dialogue.
 If a great insight, joke, or question comes to mind that doesn't fit the current topic, go ahead and say it anyway. We can always circle back to the main thread later. Serendipity and tangents are welcome.
-The overall goal is to have a lively, natural conversation with plenty of back-and-forth. Prioritize concision, but also allow room for humor, improvisation, and provocative ideas. Efficiency is good, but so is keeping things fun and stimulating. We would prefer to cover a topic with many brief back and forth comments rather than a few long monologues. Let me know if you need any other guidance!'''
+The overall goal is to have a lively, natural conversation with plenty of back-and-forth. Prioritize concision, but also allow room for humor, improvisation, and provocative ideas. Efficiency is good, but so is keeping things fun and stimulating. We would prefer to cover a topic with many brief back and forth comments rather than a few long monologues. Do not emote using asterisksin your replies. Communicate in a natural spoken style.'''
 
 print("\nClaude's instructions: " + system_message + Fore.YELLOW +
       "\n\nPress spacebar to capture your audio and begin the conversation." + Style.RESET_ALL)
@@ -71,7 +74,7 @@ def record_audio():
     duration = 90  # Maximum possible duration, but we can stop earlier
     block_duration = 0.1  # Duration of each audio block in seconds
 
-    # Callback function to be called for each audio block
+    # Callback function to be called for each audio block. Frames, time, and status are used by library mechanisms outside this script so need to stay.
     def callback(indata, frames, time, status):
         nonlocal audio_data
         if is_recording:
@@ -82,7 +85,7 @@ def record_audio():
 
     audio_data = []
     # Start recording in a non-blocking manner
-    with sd.InputStream(callback=callback, samplerate=fs, channels=2, blocksize=int(fs * block_duration)):
+    with sd.InputStream(callback=callback, samplerate=fs, channels=1, blocksize=int(fs * block_duration)):
         while is_recording and len(audio_data) * block_duration < duration:
             sd.sleep(int(block_duration * 1000))
 
@@ -106,17 +109,19 @@ def on_space_press(event):
 
 
 def transcribe_audio_to_text(audio_data, sample_rate):
-    # print("Transcribing audio...")
+    start_time = time.time()  # Record the start time
     temp_dir = './input/'
     os.makedirs(temp_dir, exist_ok=True)
     temp_file_path = tempfile.mktemp(suffix='.wav', dir=temp_dir)
     try:
         write(temp_file_path, sample_rate, audio_data)
-        # print(f"Audio written to temporary file: {temp_file_path}")
         segments, _ = WhisperModel(
             model_size, device="cuda", compute_type=compute_type).transcribe(temp_file_path)
         transcript = " ".join(segment.text for segment in segments)
         print(Fore.GREEN + "User:", transcript)
+        end_time = time.time()  # Record the end time
+        duration = end_time - start_time  # Calculate the duration
+        print(f"[Transcription: {duration:.2f} seconds]")
         return transcript
     except Exception as e:
         print(Fore.RED + "Error during transcription:", e)
@@ -124,13 +129,13 @@ def transcribe_audio_to_text(audio_data, sample_rate):
         os.remove(temp_file_path)
 
 
-def generate_and_process_text(user_input, transcription_file):
+def generate_and_process_text(user_input, transcript_file):
     # Trim whitespace and check if input is empty
     user_input = user_input.strip()
     if user_input:  # Proceed only if user_input is not empty
         conversation_history.append({"role": "user", "content": user_input})
-        with open(transcription_file, "a") as file:
-            file.write(f"User: {user_input}\n")
+        with open(transcript_file, "a") as file:
+            file.write(f"~~~\n\nUser: {user_input}\n\n~~~\n")
     else:
         print(Fore.RED + "Received empty input, skipping...")
         return  # Skip processing for empty input
@@ -177,9 +182,9 @@ def generate_and_process_text(user_input, transcription_file):
     conversation_history.append(
         {"role": "assistant", "content": claude_response})
 
-    # Write Claude's completed response to the transcription file
-    with open(transcription_file, "a") as file:
-        file.write(f"Claude: {claude_response}\n")
+    # Write Claude's completed response to the transcript file
+    with open(transcript_file, "a") as file:
+        file.write(f"\nClaude: {claude_response}\n\n")
 
     print()  # Newline for separation
 
@@ -231,9 +236,21 @@ def determine_current_state(conversation_history):
         return States.GENERATING_RESPONSE
 
 
+def setup_new_transcript_file():
+    transcripts_directory = "transcripts"
+    os.makedirs(transcripts_directory, exist_ok=True)
+
+    timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+    transcript_file = f"{transcripts_directory}/transcript_{timestamp}.txt"
+    with open(transcript_file, "w") as file:
+        file.write(f"Transcription started at {timestamp}\n\n")
+
+    return transcript_file
+
+
 def setup_transcript_file(transcript_filename):
     timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-    new_transcript_file = f"transcripts/transcription_{timestamp}.txt"
+    new_transcript_file = f"transcripts/transcript_{timestamp}.txt"
 
     # Copy the content of the original transcript into the new file
     with open(transcript_filename, "r") as original_file, open(new_transcript_file, "w") as new_file:
@@ -254,15 +271,15 @@ def main():
                 transcript_content = file.read()
             conversation_history = parse_transcript(transcript_content)
             current_state = determine_current_state(conversation_history)
-            transcription_file = setup_transcript_file(transcript_filename)
+            transcript_file = setup_transcript_file(transcript_filename)
             print(Fore.GREEN +
                   f"Resuming conversation from {transcript_filename}")
         except FileNotFoundError:
             print(
                 Fore.RED + f"Transcript file '{transcript_filename}' not found. Starting a new conversation.")
-            transcription_file = setup_new_transcription_file()
+            transcript_file = setup_new_transcript_file()
     else:
-        transcription_file = setup_new_transcription_file()
+        transcript_file = setup_new_transcript_file()
 
     thread = Thread(target=run_async_tasks)
     thread.start()
@@ -273,7 +290,6 @@ def main():
         keyboard.on_press(on_space_press)
         while True:
             if current_state != previous_state:
-                # print(f"Current state: {current_state}")
                 previous_state = current_state  # Update previous_state
 
             if current_state == States.RECORDING_USER_INPUT:
@@ -282,14 +298,12 @@ def main():
                 current_state = States.PROCESSING_USER_INPUT
 
             elif current_state == States.PROCESSING_USER_INPUT:
-                # print("Processing user input...")
                 # Transcribe and process input
                 user_input = transcribe_audio_to_text(recording, fs)
-                generate_and_process_text(user_input, transcription_file)
+                generate_and_process_text(user_input, transcript_file)
                 current_state = States.GENERATING_RESPONSE
 
             elif current_state == States.GENERATING_RESPONSE:
-                # print("Generating response...")
                 if not pygame.mixer.music.get_busy():  # Check if pygame playback is completed
                     current_state = States.WAITING_FOR_USER
 
@@ -300,18 +314,6 @@ def main():
         print(Fore.RED + "\nShutting down gracefully...")
         shutdown_event.set()
         thread.join()
-
-
-def setup_new_transcription_file():
-    transcripts_directory = "transcripts"
-    os.makedirs(transcripts_directory, exist_ok=True)
-
-    timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-    transcription_file = f"{transcripts_directory}/transcription_{timestamp}.txt"
-    with open(transcription_file, "w") as file:
-        file.write(f"Transcription started at {timestamp}\n\n")
-
-    return transcription_file
 
 
 if __name__ == "__main__":
