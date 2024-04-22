@@ -7,7 +7,6 @@ import time
 import tempfile
 import anthropic
 import datetime
-import assemblyai as aai
 import sounddevice as sd
 import numpy as np
 from async_tasks import start_async_tasks, text_to_speech_queue
@@ -24,7 +23,6 @@ import pygame
 
 # Credentials and API keys
 load_dotenv()
-aai.settings.api_key = os.getenv("ASSEMBLYAI_API_KEY")
 anthropic_key = os.getenv('ANTHROPIC_KEY')
 
 # Initialize colorama and Anthropic client
@@ -39,7 +37,7 @@ pygame.init()
 # Global variables
 conversation_history = []
 shutdown_event = asyncio.Event()
-model_size = "small"
+model_size = "tiny"
 compute_type = "float16"
 recording_finished = False
 is_recording = False
@@ -62,7 +60,7 @@ Make your points directly. Turn the conversation back to the human quickly. You 
 
 Feel free to be unexpected, witty, irreverent, and humorous when appropriate. Don't be afraid to make keen observations, ask thought-provoking questions, or leave some ideas incomplete for us to ponder. The goal is an engaging, unpredictable, interesting dialogue.
 If a great insight, joke, or question comes to mind that doesn't fit the current topic, go ahead and say it anyway. We can always circle back to the main thread later. Serendipity and tangents are welcome.
-The overall goal is to have a lively, natural conversation with plenty of back-and-forth. Prioritize concision, but also allow room for humor, improvisation, and provocative ideas. Efficiency is good, but so is keeping things fun and stimulating. We would prefer to cover a topic with many brief back and forth comments rather than a few long monologues. Do not emote using asterisksin your replies. Communicate in a natural spoken style.'''
+The overall goal is to have a lively, natural conversation with plenty of back-and-forth. Prioritize concision, but also allow room for humor, improvisation, and provocative ideas. Efficiency is good, but so is keeping things fun and stimulating. We would prefer to cover a topic with many brief back and forth comments rather than a few long monologues. Do not emote using asterisks in your replies. Communicate in a natural spoken style.'''
 
 print("\nClaude's instructions: " + system_message + Fore.YELLOW +
       "\n\nPress spacebar to capture your audio and begin the conversation." + Style.RESET_ALL)
@@ -210,16 +208,25 @@ def run_async_tasks():
 
 def parse_transcript(transcript_content):
     conversation_history = []
+    last_role = None  # Variable to keep track of the last role added to the history
+
     lines = transcript_content.strip().split("\n")
     for line in lines:
         if line.startswith("User: "):
             user_input = line[6:]
+            # Check if the last message is also from the user
+            if last_role == "user":
+                # Append a filler message from the assistant if two user messages are in a row
+                conversation_history.append(
+                    {"role": "assistant", "content": "Please continue..."})
             conversation_history.append(
                 {"role": "user", "content": user_input})
+            last_role = "user"  # Update the last role
         elif line.startswith("Claude: "):
             claude_response = line[8:]
             conversation_history.append(
                 {"role": "assistant", "content": claude_response})
+            last_role = "assistant"  # Update the last role
 
     # Check if the last message is from the user
     if conversation_history and conversation_history[-1]["role"] == "user":
