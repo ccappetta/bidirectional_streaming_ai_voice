@@ -68,7 +68,7 @@ print("\nClaude's instructions: " + system_message + Fore.YELLOW +
 
 def record_audio():
     global is_recording
-    fs = 44100  # Sample rate
+    fs = 16000  # Sample rate
     duration = 90  # Maximum possible duration, but we can stop earlier
     block_duration = 0.1  # Duration of each audio block in seconds
 
