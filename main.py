@@ -39,8 +39,8 @@ pygame.init()
 # Global variables
 conversation_history = []
 shutdown_event = asyncio.Event()
-model_size = "small"
-compute_type = "float16"
+# model_size = "small"
+# compute_type = "float16"
 recording_finished = False
 is_recording = False
 
@@ -70,7 +70,7 @@ print("\nClaude's instructions: " + system_message + Fore.YELLOW +
 
 def record_audio():
     global is_recording
-    fs = 44100  # Sample rate
+    fs = 8000  # Sample rate
     duration = 90  # Maximum possible duration, but we can stop earlier
     block_duration = 0.1  # Duration of each audio block in seconds
 
